@@ -53,6 +53,6 @@ Castling is another special rule in chess. If you are unfamiliar with it or need
 
 Your task is to implement castling in our program. As with promotion, we will also be modifying the rule slightly to fit our purposes. In this case, the king may castle if the king and/or the corresponding rook have moved (so long as they are still in the proper spot). The other subtle rules of castling still apply though; for example, the king may not castle through nor into check. One more thing to note is that castling is shown as one of the king's moves (not the rooks'). For example, the two outside moves of the white king correspond to queenside and kingside castling:
 
-![Castling](castling.png)
+![Castling](castling.PNG)
 
 This is by far the hardest task for this lab; take your time and try not to get too frustrated. Good luck!
