@@ -18,19 +18,19 @@ To see all of this working in concert, run the `Main.java` file. This starts up 
 
 ### Network Operation
 
-This section is irrelevant to the tasks of the lab so feel free to skip it. In addition to local matches, the software can also have games over the network. In each networked match (and most networked communication infrastructure), there is a client (always white) and a server (always black). Consequently, both a client and a server computer are required to start a networked match. To start a game client, run the `NetworkClientMain.java` program. This will open a window showing a list of all available games (broadcasted by servers) to connect to. When the desired game appears, select and press "Connect". To start a game server, run the `NetworkServerMain.java` program. This will prompt you for a name identifying this match to all possible clients. After you've inputted a name, the game will start when a client connects.
+This section is irrelevant to the tasks of the lab so feel free to skip it. In addition to local matches, the software can also have games over the network. In each networked match (and most networked communication infrastructure), there is a client (always white) and a server (always black). Consequently, both a client and a server computer are required to start a networked match. To start a game client, run the `NetworkClientMain.java` program. This will open a window showing a list of all available games (broadcasted by servers) to connect to. When the desired game appears, select a game and press "Connect". To start a game server, run the `NetworkServerMain.java` program. This will prompt you for a name identifying this match to all possible clients. After you've inputted a name, the game will start when a client connects.
 
 ### Basic Movement
 
 Your first task is to program the movement of each of the pieces. All pieces must extend the `Piece` class. This abstract class has a single abstract method, `getValidMoves()` that returns a list of valid moves given the current `Board`. This method returns a `List<Move>` where `Move`s are merely simple objects that have a start and end location. To help you out, I've written the basic skeleton for each of the piece subclasses and completely implemented the `Pawn` class. Despite their apparent simplicity, the movement logic for pawns is rather complicated. Make sure to carefully study its`getValidMoves()` method and try to understand how it all works.
 
-There are also two static utility methods in the `Piece` class that may (hint) help with your implementations. However, I caution you not to use them until you fully understand their purpose.
+There are also two static utility methods in the `Piece` class that may (hint) help with your implementations. Before implementing any `getValidMoves()` methods, try and understand what the two methods do and write a short Javadoc comment for both of them using the `@param` and `@return` tags.
 
 Please fill out the `getValidMoves()` method for the `Knight`, `Bishop`,`Rook`,`Queen`, and `King` classes. When you're finished, you should be able to spin up a new game and play.
 
 ### Mirror Player
 
-Now that you have a working game framework, you're going to make a simple computer player. To do this, make a new class `MirrorPlayer` that extends `Player`. The intent of this player is to the opponent's plays move-by-move. For example, if the human player moves its queen's pawn forward one square, the mirror player should do the same with its queen's pawn. You may safely assume that the `MirrorPlayer` will always be black. Additionally, the player doesn't need to check that the move it makes is valid so long as it is an exact mirror of white's last move (this may cause an error popup; don't worry about it).
+Now that you have a working game framework, you're ready to make a simple computer player. To do this, make a new class `MirrorPlayer` that extends `Player`. The intent of this player is to the opponent's plays move-by-move. For example, if the human player moves its queen's pawn forward one square, the mirror player should do the same with its queen's pawn. You may safely assume that the `MirrorPlayer` will always be black. Additionally, the player doesn't need to check that the move it makes is valid so long as it is an exact mirror of white's last move (this may cause an error popup; don't worry about it).
 
 To switch out one of the human players for your `MirrorPlayer`, replace the black player in the `GameLoop` constructor in `Main.java`. 
 

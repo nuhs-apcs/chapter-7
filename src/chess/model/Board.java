@@ -105,15 +105,21 @@ public class Board {
 		int i = 0;
 		while (i < moves.size()) {
 			Move m = moves.get(i);
-			apply(m);
-			if (isCheck(color)) {
+			if (resultsInCheck(m, color)) {
 				moves.remove(i);
 			} else {
 				i++;
 			}
-			unapply(m);
 		}
 		return moves;
+	}
+	
+	public boolean resultsInCheck(Move m, Color color) {
+		boolean result;
+		apply(m);
+		result = isCheck(color);
+		unapply(m);
+		return result;
 	}
 	
 	public Piece getPieceAt(int row, int col) {
