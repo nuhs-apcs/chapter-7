@@ -10,6 +10,10 @@ public abstract class Piece {
 	private Color color;
 	private Image image;
 	
+	public Piece(Piece p) {
+		this(p.getColor(), p.getRow(), p.getCol(), p.getImage());
+	}
+	
 	public Piece(Color color, int row, int col, Image image) {
 		this.row = row;
 		this.col = col;
