@@ -1,6 +1,7 @@
 package chess.model;
 
 import java.awt.Image;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,15 +11,21 @@ public abstract class Piece {
 	private Color color;
 	private Image image;
 	
-	public Piece(Piece p) {
-		this(p.getColor(), p.getRow(), p.getCol(), p.getImage());
-	}
-	
 	public Piece(Color color, int row, int col, Image image) {
 		this.row = row;
 		this.col = col;
 		this.color = color;
 		this.image = image;
+	}
+	
+	public Piece copy() {
+		try {
+			return (Piece) (getClass().getConstructors()[0].newInstance(color, row, col));
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+				| SecurityException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 	public Image getImage() {

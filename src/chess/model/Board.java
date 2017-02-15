@@ -2,7 +2,6 @@ package chess.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
 
 import chess.model.pieces.Bishop;
 import chess.model.pieces.King;
@@ -54,14 +53,15 @@ public class Board {
 		List<Piece> pieces = b.getPiecesInPlay();
 		pieces.clear();
 		for (Piece p : piecesInPlay) {
-			pieces.add(new Piece(p));
-		}
-	}
-	
-	public void copyFrom(Board b) {
-		piecesInPlay.clear();
-		for (Piece p : b.getPiecesInPlay()) {
-			piecesInPlay.add(new Piece(p));
+			if (p == whiteKing) {
+				b.whiteKing = (King) p.copy();
+				pieces.add(b.whiteKing);
+			} else if (p == blackKing) {
+				b.blackKing = (King) p.copy();
+				pieces.add(b.blackKing);
+			} else {
+				pieces.add(p.copy());
+			}
 		}
 	}
 	
