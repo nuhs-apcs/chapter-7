@@ -14,13 +14,11 @@ import chess.model.pieces.Rook;
 public class Board {
 	
 	private List<Piece> piecesInPlay;
-	private Stack<Piece> capturedPieces;
 	
 	private King whiteKing, blackKing;
 	
 	public Board() {
 		piecesInPlay = new ArrayList<Piece>();
-		capturedPieces = new Stack<Piece>();
 		
 		piecesInPlay.add(new Rook(Color.BLACK, 0, 0));
 		piecesInPlay.add(new Knight(Color.BLACK, 0, 1));
@@ -52,6 +50,21 @@ public class Board {
 		piecesInPlay.add(new Rook(Color.WHITE, 7, 7));
 	}
 	
+	public void copyTo(Board b) {
+		List<Piece> pieces = b.getPiecesInPlay();
+		pieces.clear();
+		for (Piece p : piecesInPlay) {
+			pieces.add(new Piece(p));
+		}
+	}
+	
+	public void copyFrom(Board b) {
+		piecesInPlay.clear();
+		for (Piece p : b.getPiecesInPlay()) {
+			piecesInPlay.add(new Piece(p));
+		}
+	}
+	
 	public List<Piece> getPiecesInPlay() {
 		return piecesInPlay;
 	}
@@ -64,21 +77,8 @@ public class Board {
 		if (capturedPiece != null) {
 			piecesInPlay.remove(capturedPiece);
 		}
-		capturedPieces.add(capturedPiece);
 		piece.setRow(m.getEndRow());
 		piece.setCol(m.getEndCol());
-		return true;
-	}
-	
-	public boolean unapply(Move m) {
-		Piece piece = getPieceAt(m.getEndRow(), m.getEndCol());
-		if (piece == null) return false;
-		Piece captured = capturedPieces.pop();
-		if (captured != null) {
-			piecesInPlay.add(captured);
-		}
-		piece.setRow(m.getStartRow());
-		piece.setCol(m.getStartCol());
 		return true;
 	}
 	
@@ -103,23 +103,18 @@ public class Board {
 	
 	public List<Move> removeChecks(List<Move> moves, Color color) {
 		int i = 0;
+		Board tempBoard = new Board();
 		while (i < moves.size()) {
 			Move m = moves.get(i);
-			if (resultsInCheck(m, color)) {
+			this.copyTo(tempBoard);
+			tempBoard.apply(m);
+			if (tempBoard.isCheck(color)) {
 				moves.remove(i);
 			} else {
 				i++;
 			}
 		}
 		return moves;
-	}
-	
-	public boolean resultsInCheck(Move m, Color color) {
-		boolean result;
-		apply(m);
-		result = isCheck(color);
-		unapply(m);
-		return result;
 	}
 	
 	public Piece getPieceAt(int row, int col) {
