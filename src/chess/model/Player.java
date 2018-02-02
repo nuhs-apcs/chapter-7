@@ -1,5 +1,7 @@
 package chess.model;
 
+import chess.model.moves.Move;
+
 public abstract class Player {
 	
 	private Color color;

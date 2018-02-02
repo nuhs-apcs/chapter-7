@@ -3,142 +3,153 @@ package chess.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import chess.model.pieces.Bishop;
-import chess.model.pieces.King;
-import chess.model.pieces.Knight;
-import chess.model.pieces.Pawn;
-import chess.model.pieces.Queen;
-import chess.model.pieces.Rook;
+import chess.model.moves.Move;
+import chess.model.moves.SimpleMove;
+import chess.model.pieces.*;
 
 public class Board {
 	
-	private List<Piece> piecesInPlay;
+	private List<Move> moveHistory;
+	
+	private Piece[][] pieces;
 	
 	private King whiteKing, blackKing;
 	
 	public Board() {
-		piecesInPlay = new ArrayList<Piece>();
+		moveHistory = new ArrayList<>();
 		
-		piecesInPlay.add(new Rook(Color.BLACK, 0, 0));
-		piecesInPlay.add(new Knight(Color.BLACK, 0, 1));
-		piecesInPlay.add(new Bishop(Color.BLACK, 0, 2));
-		piecesInPlay.add(new Queen(Color.BLACK, 0, 3));
+		pieces = new Piece[8][8];
 		
-		blackKing = new King(Color.BLACK, 0, 4);
+		whiteKing = new King(Color.WHITE);
+		blackKing = new King(Color.BLACK);
 		
-		piecesInPlay.add(blackKing);
-		piecesInPlay.add(new Bishop(Color.BLACK, 0, 5));
-		piecesInPlay.add(new Knight(Color.BLACK, 0, 6));
-		piecesInPlay.add(new Rook(Color.BLACK, 0, 7));
+		pieces[0][4] = blackKing;
+		pieces[7][3] = whiteKing;
 		
-		for (int i = 0; i < 8; i++) {
-			piecesInPlay.add(new Pawn(Color.BLACK, 1, i));
-			piecesInPlay.add(new Pawn(Color.WHITE, 6, i));
-		}
-		
-		piecesInPlay.add(new Rook(Color.WHITE, 7, 0));
-		piecesInPlay.add(new Knight(Color.WHITE, 7, 1));
-		piecesInPlay.add(new Bishop(Color.WHITE, 7, 2));
-		piecesInPlay.add(new Queen(Color.WHITE, 7, 3));
-		
-		whiteKing = new King(Color.WHITE, 7, 4);
-		
-		piecesInPlay.add(whiteKing);
-		piecesInPlay.add(new Bishop(Color.WHITE, 7, 5));
-		piecesInPlay.add(new Knight(Color.WHITE, 7, 6));
-		piecesInPlay.add(new Rook(Color.WHITE, 7, 7));
-	}
-	
-	public void copyTo(Board b) {
-		List<Piece> pieces = b.getPiecesInPlay();
-		pieces.clear();
-		for (Piece p : piecesInPlay) {
-			if (p == whiteKing) {
-				b.whiteKing = (King) p.copy();
-				pieces.add(b.whiteKing);
-			} else if (p == blackKing) {
-				b.blackKing = (King) p.copy();
-				pieces.add(b.blackKing);
-			} else {
-				pieces.add(p.copy());
-			}
-		}
-	}
-	
-	public List<Piece> getPiecesInPlay() {
-		return piecesInPlay;
-	}
-	
-	public boolean apply(Move m) {
-		if (m == null) return false;
-		Piece piece = getPieceAt(m.getStartRow(), m.getStartCol());
-		if (piece == null) return false;
-		Piece capturedPiece = getPieceAt(m.getEndRow(), m.getEndCol());
-		if (capturedPiece != null) {
-			piecesInPlay.remove(capturedPiece);
-		}
-		piece.setRow(m.getEndRow());
-		piece.setCol(m.getEndCol());
-		return true;
-	}
-	
-	public List<Move> getValidMoves(Piece piece, boolean removeChecks) {
-		List<Move> moves = piece.getValidMoves(this);
-		if (removeChecks) {
-			removeChecks(moves, piece.getColor());
-		}
-		return moves;
-	}
-	
-	public List<Move> getValidMoves(Color color, boolean removeChecks) {
-		List<Move> validMoves = new ArrayList<Move>();
-		for (int i = 0; i < piecesInPlay.size(); i++) {
-			Piece piece = piecesInPlay.get(i);
-			if (piece.getColor() == color) {
-				validMoves.addAll(getValidMoves(piece, removeChecks));
-			}
-		}
-		return validMoves;
-	}
-	
-	public List<Move> removeChecks(List<Move> moves, Color color) {
-		int i = 0;
-		Board tempBoard = new Board();
-		while (i < moves.size()) {
-			Move m = moves.get(i);
-			this.copyTo(tempBoard);
-			tempBoard.apply(m);
-			if (tempBoard.isCheck(color)) {
-				moves.remove(i);
-			} else {
-				i++;
-			}
-		}
-		return moves;
+		pieces[1][4] = new Pawn(Color.BLACK);
+		pieces[6][3] = new Pawn(Color.WHITE);
 	}
 	
 	public Piece getPieceAt(int row, int col) {
-		for (Piece piece : piecesInPlay) {
-			if (piece.getRow() == row && piece.getCol() == col) {
-				return piece;
+		if (row < 0 || row >= 8 || col < 0 || col >= 8) {
+			return null;
+		} else {
+			return pieces[row][col];
+		}
+	}
+	
+	public void setPieceAt(int row, int col, Piece piece) {
+		pieces[row][col] = piece;
+	}
+	
+	public int[] getPieceLocation(Piece piece) {
+		for (int row = 0; row < 8; row++) {
+			for (int col = 0; col < 8; col++) {
+				if (pieces[row][col] == piece) {
+					return new int[]{row, col};
+				}
 			}
 		}
 		return null;
 	}
 	
-	public boolean isCheckmate(Color color) {
-		return getValidMoves(color, true).size() == 0;
+	public void apply(Move move) {
+		move.apply(this);
+		moveHistory.add(0, move);
+	}
+	
+	public void undo() {
+		Move lastMove = moveHistory.remove(0);
+		lastMove.unapply(this);
+	}
+
+	private List<Move> getValidMovesIgnoreCheck(Color color) {
+		List<Move> allValidMoves = new ArrayList<>();
+		for (int row = 0; row < 8; row++) {
+			for (int col = 0; col < 8; col++) {
+				Piece piece = pieces[row][col];
+				if (piece == null || piece.getColor() != color) continue;
+				allValidMoves.addAll(piece.getValidMoves(this, row, col));
+			}
+		}
+		return allValidMoves;
 	}
 	
 	public boolean isCheck(Color color) {
-		List<Move> validMoves = getValidMoves(color.opposite(), false);
-		King king = (color == Color.WHITE) ? whiteKing : blackKing;
-		for (Move move : validMoves) {
-			if (move.getEndRow() == king.getRow() && move.getEndCol() == king.getCol()) {
-				return true;
+		Piece king = (color == Color.BLACK) ? blackKing : whiteKing;
+		int[] kingLoc = getPieceLocation(king);
+		int kingRow = kingLoc[0], kingCol = kingLoc[1];
+		List<Move> possibleNextMoves = getValidMovesIgnoreCheck(color.opposite());
+		for (Move move : possibleNextMoves) {
+			if (move instanceof SimpleMove) {
+				SimpleMove simpleMove = (SimpleMove) move;
+				if (simpleMove.getEndRow() == kingRow && simpleMove.getEndCol() == kingCol) {
+					return true;
+				}	
 			}
 		}
 		return false;
+	}
+	
+	public List<Move> getValidMoves(Piece piece) {
+		int[] pieceLoc = getPieceLocation(piece);
+		int pieceRow = pieceLoc[0], pieceCol = pieceLoc[1];
+		List<Move> moves = piece.getValidMoves(this, pieceRow, pieceCol);
+		int i = 0;
+		while (i < moves.size()) {
+			Move move = moves.get(i);
+			apply(move);
+			if (isCheck(piece.getColor())) {
+				moves.remove(i);
+			} else {
+				i++;
+			}
+			undo();
+		}
+		return moves;
+	}
+
+	public List<Move> getValidMoves(Color color) {
+		List<Move> allValidMoves = new ArrayList<>();
+		for (int row = 0; row < 8; row++) {
+			for (int col = 0; col < 8; col++) {
+				Piece piece = pieces[row][col];
+				if (piece == null || piece.getColor() != color) continue;
+				allValidMoves.addAll(getValidMoves(piece));
+			}
+		}
+		return allValidMoves;
+	}
+	
+	public boolean isCheckmate(Color color) {
+		return getValidMoves(color).size() == 0;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		for (int row = 0; row < 8; row++) {
+			for (int col = 0; col < 8; col++) {
+				Piece piece = getPieceAt(row, col);
+				if (piece == null) {
+					builder.append(" ");
+				} else if (piece instanceof Pawn) {
+					builder.append("P");
+				} else if (piece instanceof Knight) {
+					builder.append("N");
+				} else if (piece instanceof Bishop) {
+					builder.append("B");
+				} else if (piece instanceof Rook) {
+					builder.append("R");
+				} else if (piece instanceof Queen) {
+					builder.append("Q");
+				} else if (piece instanceof King) {
+					builder.append("K");
+				}
+			}
+			builder.append("\n");
+		}
+		return builder.toString();
 	}
 
 }

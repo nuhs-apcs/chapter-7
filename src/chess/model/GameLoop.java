@@ -5,6 +5,8 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
+import chess.model.moves.Move;
+import chess.model.pieces.Piece;
 import chess.network.NetworkPlayerClient;
 import chess.network.NetworkPlayerServer;
 import chess.ui.BoardView;
@@ -21,6 +23,7 @@ public class GameLoop extends Thread {
 	
 	private List<Move> validMoves;
 	private Move lastMove;
+	private int activeRow, activeCol;
 	
 	public GameLoop(GameWindow window, Player whitePlayer, Player blackPlayer) {
 		this.whitePlayer = whitePlayer;
@@ -56,7 +59,7 @@ public class GameLoop extends Thread {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		JOptionPane.showMessageDialog(window, winner + " won!", "Game Result", JOptionPane.PLAIN_MESSAGE);
+		JOptionPane.showMessageDialog(window, winner + " wins!", "Game Result", JOptionPane.PLAIN_MESSAGE);
 		window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
 	}
 	
@@ -68,13 +71,13 @@ public class GameLoop extends Thread {
 				@Override
 				public void onCellClick(int row, int col) {
 					if (validMoves != null) {
-						if (validMoves.size() != 0 && row == validMoves.get(0).getStartRow() && col == validMoves.get(0).getStartCol()) {
+						if (validMoves.size() != 0 && row == activeRow && col == activeCol) {
 							view.hideMoves();
 							validMoves = null;
 							return;
 						}
 						for (Move m : validMoves) {
-							if (m.getEndRow() == row && m.getEndCol() == col) {
+							if (m.getDisplayRow() == row && m.getDisplayCol() == col) {
 								view.hideMoves();
 								validMoves = null;
 								userPlayer.onUserMove(m);
@@ -83,15 +86,17 @@ public class GameLoop extends Thread {
 						}
 					}
 					Piece piece = board.getPieceAt(row, col);
+					activeRow = row;
+					activeCol = col;
 					if (piece != null && piece.getColor() == userPlayer.getColor()) {
-						validMoves = board.getValidMoves(piece, true);
-						view.showMoves(validMoves);
+						validMoves = board.getValidMoves(piece);
+						view.showMoves(row, col, validMoves);
 					}
 				}
 				
 			});
 		}
-		List<Move> validMoves = board.getValidMoves(player.getColor(), true);
+		List<Move> validMoves = board.getValidMoves(player.getColor());
 		Move move = player.makeMove(board, lastMove);
 		lastMove = move;
 		view.setOnCellClickListener(null);

@@ -1,19 +1,17 @@
 package chess.ui;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
-import javax.swing.BoxLayout;
+
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.JSeparator;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
@@ -22,16 +20,15 @@ import chess.network.GameClient;
 import chess.network.GameClientListener;
 import chess.network.GameInfo;
 
+@SuppressWarnings("serial")
 public class GameConnectWindow extends JFrame implements GameClientListener {
 	
-	private GameClient client;
 	private DefaultListModel<GameInfo> listModel;
 	private JList<GameInfo> list;
 	private JButton connectButton;
 	private Font font;
 	
 	public GameConnectWindow(GameClient client) {
-		this.client = client;
 		client.setGameClientListener(this);
 		client.scan();
 		

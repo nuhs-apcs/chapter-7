@@ -2,6 +2,8 @@ package chess.model;
 
 import java.util.concurrent.CountDownLatch;
 
+import chess.model.moves.Move;
+
 public class UserPlayer extends Player {
 	
 	private Move userMove;
@@ -18,7 +20,7 @@ public class UserPlayer extends Player {
 		try {
 			latch.await();
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			// do nothing
 		}
 		return userMove;
 	}

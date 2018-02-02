@@ -7,8 +7,8 @@ import javax.swing.JOptionPane;
 
 import chess.model.Board;
 import chess.model.Color;
-import chess.model.Move;
 import chess.model.Player;
+import chess.model.moves.Move;
 import chess.ui.GameConnectWindow;
 
 public class NetworkPlayerClient extends Player {
@@ -30,9 +30,7 @@ public class NetworkPlayerClient extends Player {
 	@Override
 	public Move makeMove(Board board, Move lastMove) {
 		if (lastMove != null) sendMove(lastMove);
-		Move m = getMove();
-		board.apply(m);
-		return m;
+		return getMove();
 	}
 	
 	public void sendMove(Move m) {

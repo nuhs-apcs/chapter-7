@@ -3,6 +3,7 @@ package chess.network;
 import java.io.Serializable;
 import java.net.InetAddress;
 
+@SuppressWarnings("serial")
 public class GameInfo implements Serializable {
 	
 	private String name;

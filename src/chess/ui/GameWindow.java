@@ -1,10 +1,8 @@
 package chess.ui;
 
 import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
 
-import chess.model.Board;
-
+@SuppressWarnings("serial")
 public class GameWindow extends JFrame {
 	
 	private BoardView boardView;
@@ -21,15 +19,6 @@ public class GameWindow extends JFrame {
 	
 	public BoardView getBoardView() {
 		return boardView;
-	}
-	
-	public static void main(String[] args) {
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				(new GameWindow(new BoardView(new Board()))).setVisible(true);
-			}
-		});
 	}
 
 }

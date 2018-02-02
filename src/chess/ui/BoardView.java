@@ -11,10 +11,11 @@ import java.util.List;
 import javax.swing.JPanel;
 
 import chess.model.Board;
-import chess.model.Move;
-import chess.model.Piece;
+import chess.model.moves.Move;
 import chess.model.pieces.King;
+import chess.model.pieces.Piece;
 
+@SuppressWarnings("serial")
 public class BoardView extends JPanel implements MouseListener {
 	
 	public static final Color LIGHT_SQUARE_COLOR = Color.WHITE;
@@ -23,11 +24,14 @@ public class BoardView extends JPanel implements MouseListener {
 	private Board board;
 	private OnCellClickListener listener;
 	private List<Move> moves;
+	private int activeRow, activeCol;
 	
 	private int cellWidth, cellHeight;
+	private boolean flipped;
 	
-	public BoardView(Board board) {
+	public BoardView(Board board, boolean flipped) {
 		this.board = board;
+		this.flipped = flipped;
 		addMouseListener(this);
 	}
 	
@@ -56,34 +60,52 @@ public class BoardView extends JPanel implements MouseListener {
 		}
 		
 		// draw the pieces
-		List<Piece> pieces = board.getPiecesInPlay();
-		for (int i = 0; i < pieces.size(); i++) {
-			Piece piece = pieces.get(i);
-			if (piece instanceof King) {
-				if (board.isCheck(piece.getColor())) {
-					g2d.setColor(Color.RED);
-					g2d.fillRect(cellWidth * piece.getCol(), cellHeight * piece.getRow(), cellWidth, cellHeight);
+		for (int row = 0; row < 8; row++) {
+			for (int col = 0; col < 8; col++) {
+				Piece piece = board.getPieceAt(row, col);
+				if (piece == null) continue;
+				if (piece instanceof King) {
+					if (board.isCheck(piece.getColor())) {
+						g2d.setColor(Color.RED);
+						if (flipped) {
+							g2d.fillRect(cellWidth * (7 - col), cellHeight * (7 - row), cellWidth, cellHeight);
+						} else {
+							g2d.fillRect(cellWidth * col, cellHeight * row, cellWidth, cellHeight);
+						}
+					}
+				}
+				if (moves != null && moves.size() != 0 && activeRow == row && activeCol == col) {
+					g2d.setColor(Color.BLUE);
+					if (flipped) {
+						g2d.fillRect(cellWidth * (7 - col), cellHeight * (7 - row), cellWidth, cellHeight);
+					} else {
+						g2d.fillRect(cellWidth * col, cellHeight * row, cellWidth, cellHeight);
+					}
+				}
+				if (flipped) {
+					g2d.drawImage(piece.getImage(), cellWidth * (7 - col), cellHeight * (7 - row), cellWidth, cellHeight, null);
+				} else {
+					g2d.drawImage(piece.getImage(), cellWidth * col, cellHeight * row, cellWidth, cellHeight, null);
 				}
 			}
-			if (moves != null && moves.size() != 0 && moves.get(0).getStartRow() == piece.getRow() && moves.get(0).getStartCol() == piece.getCol()) {
-				g2d.setColor(Color.BLUE);
-				g2d.fillRect(cellWidth * piece.getCol(), cellHeight * piece.getRow(), cellWidth, cellHeight);
-			}
-			g2d.drawImage(piece.getImage(), cellWidth * piece.getCol(), cellHeight * piece.getRow(), cellWidth, cellHeight, null);
 		}
 		
 		// draw the valid moves
 		if (moves != null) {
 			for (Move move : moves) {
-				int row = move.getEndRow();
-				int col = move.getEndCol();
-				if (board.getPieceAt(row, col) == null) {
+				if (board.getPieceAt(move.getDisplayRow(), move.getDisplayCol()) == null) {
 					g2d.setColor(Color.CYAN);
 				} else {
 					g2d.setColor(Color.RED);
 				}
-				int cx = (int) (cellWidth * (col + 0.5));
-				int cy = (int) (cellHeight * (row + 0.5));
+				int cx, cy;
+				if (flipped) {
+					cx = (int) (cellWidth * (7 - move.getDisplayRow() + 0.5));
+					cy = (int) (cellHeight * (7 - move.getDisplayCol() + 0.5));
+				} else {
+					cx = (int) (cellWidth * (move.getDisplayCol() + 0.5));
+					cy = (int) (cellHeight * (move.getDisplayRow() + 0.5));
+				}
 				int w = (int) (cellWidth / 4.0);
 				int h = (int) (cellHeight / 4.0);
 				g2d.fillOval(cx - w/2, cy - h/2, w, h);
@@ -91,8 +113,10 @@ public class BoardView extends JPanel implements MouseListener {
 		}
 	}
 	
-	public void showMoves(List<Move> moves) {
+	public void showMoves(int row, int col, List<Move> moves) {
 		this.moves = moves;
+		activeRow = row;
+		activeCol = col;
 		repaint();
 	}
 	
@@ -114,31 +138,31 @@ public class BoardView extends JPanel implements MouseListener {
 		if (listener != null) {
 			int row = e.getY() / cellHeight;
 			int col = e.getX() / cellWidth;
-			listener.onCellClick(row, col);
+			if (flipped) {
+				listener.onCellClick(7 - row, 7 - col);
+			} else {
+				listener.onCellClick(row, col);
+			}
 		}
 	}
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void mouseExited(MouseEvent e) {
-		// TODO Auto-generated method stub
 		
 	}
 

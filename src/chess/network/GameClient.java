@@ -17,7 +17,7 @@ import javax.swing.JOptionPane;
 public class GameClient {
 	
 	private List<GameInfo> games;
-	private int sendPort, receivePort;
+	private int sendPort;
 	private MulticastSocket multiSocket;
 	private Socket socket;
 	private GameClientThread thread;
@@ -41,7 +41,6 @@ public class GameClient {
 			ByteArrayInputStream bis;
 			ObjectInputStream in;
 			GameInfo gameInfo;
-//			System.out.println("client: started thread");
 			while (running) {
 				gameInfo = null;
 				try {
@@ -52,25 +51,19 @@ public class GameClient {
 						gameInfo = (GameInfo) in.readObject();
 						gameInfo.startTimer();
 					} catch (SocketTimeoutException ste) {
-//						System.out.println("client: timed out");
+						// intentionally ignore
 					} 
 					synchronized (games) {
 						if (gameInfo != null && !games.contains(gameInfo)) {
-//							System.out.println("onAddGame(): " + gameInfo.toString());
 							games.add(gameInfo);
 							if (listener != null) listener.onAddGame(gameInfo);
 						} else {
-//							System.out.println("checking out " + games.size() + " games");
 							for (int i = 0; i < games.size();) {
 								GameInfo info = games.get(i);
 								if (gameInfo != null && info.getId() == gameInfo.getId()) {
-//									System.out.println("refreshed game info: " + info.toString());
-//									games.remove(info);
-//									games.add(i, gameInfo);
 									info.startTimer();
 									i++;
 								} else if (!info.isValid()) {
-//									System.out.println("onRemoveGame(): " + info.toString());
 									games.remove(info);
 									if (listener != null) listener.onRemoveGame(info);
 								}
@@ -83,7 +76,6 @@ public class GameClient {
 					System.exit(-1);
 				}
 			}
-//			System.out.println("client: stopped thread");
 		}
 		
 		public void terminate() {
@@ -97,7 +89,6 @@ public class GameClient {
 	
 	public GameClient(InetAddress group, int sendPort, int receivePort) {
 		this.sendPort = sendPort;
-		this.receivePort = receivePort;
 		games = new ArrayList<GameInfo>();
 		try {
 			multiSocket = new MulticastSocket(receivePort);
@@ -106,7 +97,6 @@ public class GameClient {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-//		System.out.println("client: created multicast socket");
 	}
 	
 	public void setGameClientListener(GameClientListener listener) {
@@ -114,7 +104,6 @@ public class GameClient {
 	}
 	
 	public void scan() {
-//		System.out.println("client: start scanning");
 		thread = new GameClientThread();
 		thread.start();
 	}
@@ -128,19 +117,13 @@ public class GameClient {
 			thread.terminate();
 			thread.join();
 			
-	//		System.out.println("client: connecting to " + gameInfo);
 			byte[] buf = new byte[0];
 			DatagramPacket packet = new DatagramPacket(buf, buf.length, gameInfo.getHost(), sendPort);
 			multiSocket.send(packet);
 			
-	//		System.out.println("client: sent response packet");
-			
-	//		System.out.println("client: verified stopped thread");
-			
 			multiSocket.close();
 			
 			socket = new Socket(gameInfo.getHost(), sendPort);
-	//		System.out.println("client: connected via a TCP socket");
 	
 			socketOut = new ObjectOutputStream(socket.getOutputStream());
 			socketOut.flush();

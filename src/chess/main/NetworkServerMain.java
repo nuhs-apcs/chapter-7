@@ -4,8 +4,8 @@ import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
 import chess.model.Board;
-import chess.model.GameLoop;
 import chess.model.Color;
+import chess.model.GameLoop;
 import chess.model.UserPlayer;
 import chess.network.NetworkPlayerServer;
 import chess.ui.BoardView;
@@ -22,7 +22,7 @@ public class NetworkServerMain {
 			System.exit(0);
 		}
 		
-		BoardView boardView = new BoardView(new Board());
+		BoardView boardView = new BoardView(new Board(), true);
 		GameWindow window = new GameWindow(boardView);
 		GameLoop loop = new GameLoop(window, new NetworkPlayerServer(gameName), new UserPlayer(Color.BLACK));
 		loop.start();
