@@ -7,8 +7,6 @@ import javax.swing.JOptionPane;
 
 import chess.model.moves.Move;
 import chess.model.pieces.Piece;
-import chess.network.NetworkPlayerClient;
-import chess.network.NetworkPlayerServer;
 import chess.ui.BoardView;
 import chess.ui.GameWindow;
 import chess.ui.OnCellClickListener;
@@ -39,17 +37,11 @@ public class GameLoop extends Thread {
 		while (true) {
 			makeMove(whitePlayer);
 			if (board.isCheckmate(Color.BLACK)) {
-				if (blackPlayer instanceof NetworkPlayerClient) {
-					((NetworkPlayerClient) blackPlayer).sendMove(lastMove);
-				}
 				winner = Color.WHITE;
 				break;
 			}
 			makeMove(blackPlayer);
 			if (board.isCheckmate(Color.WHITE)) {
-				if (whitePlayer instanceof NetworkPlayerServer) {
-					((NetworkPlayerServer) whitePlayer).sendMove(lastMove);
-				}
 				winner = Color.BLACK;
 				break;
 			}
